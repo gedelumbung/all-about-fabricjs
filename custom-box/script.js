@@ -23,6 +23,14 @@ $('#btn_add_new').click(function(e) {
   }
 });
 
+function changeFontType(e){
+  return function(){
+  console.log($('#font_type').val())
+      e.fontFamily = $('#font_type').val();
+      canvas.renderAll();
+  }
+}
+
 canvas.on('object:selected', function(e) {
   onObjectSelected(e, canvas);
 });
@@ -36,6 +44,8 @@ canvas.on('object:moving', function(e) {
 });
 
 function onObjectSelected(e, canvas){
+  $('#font_type').off('change');
+  $('#customBox').remove();
   showImageTools(e.target, canvas);
 }
 
@@ -59,6 +69,7 @@ function showImageTools (e, side) {
     $.get(url, function(data) { 
         if (!$('#customBox').length) {
             $('body').append("<div id='customBox' style='position: absolute; top: 10; left: -50'><h3>"+data+"</h3></div>");
+            $('#font_type').change(changeFontType(e));
         }
         moveImageTools(e, side);
     });
