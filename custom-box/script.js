@@ -10,12 +10,12 @@ $('#btn_add_new').click(function(e) {
   if($('#new_text').val() !== '')
   {
     var newText = new fabric.IText($('#new_text').val(), { 
-        fontFamily: "Arial", 
-        left: 10,
-        top: 10,
-        fontSize: 20,
-        textAlign: "left",
-        fill: '#333',
+      fontFamily: "Arial", 
+      left: 10,
+      top: 10,
+      fontSize: 20,
+      textAlign: "left",
+      fill: 'black',
     });
     canvas.add(newText);
     canvas.renderAll();
@@ -25,9 +25,22 @@ $('#btn_add_new').click(function(e) {
 
 function changeFontType(e){
   return function(){
-  console.log($('#font_type').val())
-      e.fontFamily = $('#font_type').val();
-      canvas.renderAll();
+    e.fontFamily = $('#font_type').val();
+    canvas.renderAll();
+  }
+}
+
+function changeFontColor(e){
+  return function(){
+    e.fill = $('#font_color').val();
+    canvas.renderAll();
+  }
+}
+
+function changeTextAlign(e){
+  return function(){
+    e.textAlign = $('#text_align').val();
+    canvas.renderAll();
   }
 }
 
@@ -45,14 +58,16 @@ canvas.on('object:moving', function(e) {
 
 function onObjectSelected(e, canvas){
   $('#font_type').off('change');
+  $('#font_color').off('change');
+  $('#text_align').off('change');
   $('#customBox').remove();
   showImageTools(e.target, canvas);
 }
 
 function onObjectMoving(e, canvas){
   setTimeout(function() {
-      $('#customBox').remove();
-      showImageTools(e.target, canvas);
+    $('#customBox').remove();
+    showImageTools(e.target, canvas);
   }, 500);
 }
 
@@ -65,32 +80,37 @@ function removeLayers(index){
 }
 
 function showImageTools (e, side) {
-    var url = 'box.htm';
-    $.get(url, function(data) { 
-        if (!$('#customBox').length) {
-            $('body').append("<div id='customBox' style='position: absolute; top: 10; left: -50'><h3>"+data+"</h3></div>");
-            $('#font_type').change(changeFontType(e));
-        }
-        moveImageTools(e, side);
-    });
+  var url = 'box.htm';
+  $.get(url, function(data) { 
+    if (!$('#customBox').length) {
+      $('body').append("<div id='customBox' style='position: absolute; top: 10; left: -50'><h3>"+data+"</h3></div>");
+      $('#font_type').change(changeFontType(e));
+      $('#font_color').change(changeFontColor(e));
+      $('#text_align').change(changeTextAlign(e));
+      $('#font_type').val(e.fontFamily);
+      $('#font_color').val(e.fill);
+      $('#text_align').val(e.textAlign);
+    }
+    moveImageTools(e, side);
+  });
 }
 
 function moveImageTools (e, side) {
-    var w = $('#customBox').width();
-    var h = $('#customBox').height();
-    var coords = getObjPosition(e, side);
-    var top = coords.bottom;
-    var left = coords.left;
-    $('#customBox').show();
-    $('#customBox').css({top: top, left: left});
+  var w = $('#customBox').width();
+  var h = $('#customBox').height();
+  var coords = getObjPosition(e, side);
+  var top = coords.bottom;
+  var left = coords.left;
+  $('#customBox').show();
+  $('#customBox').css({top: top, left: left});
 }
 
 function getObjPosition (e, side) {
-    var rect = e.getBoundingRect();
-    var offset = side.calcOffset();
-    var bottom = offset._offset.top + rect.top + rect.height;
-    var right = offset._offset.left + rect.left + rect.width;
-    var left = offset._offset.left + rect.left;
-    var top = offset._offset.top + rect.top;
-    return {left: left, top: top, right: right, bottom: bottom};
+  var rect = e.getBoundingRect();
+  var offset = side.calcOffset();
+  var bottom = offset._offset.top + rect.top + rect.height;
+  var right = offset._offset.left + rect.left + rect.width;
+  var left = offset._offset.left + rect.left;
+  var top = offset._offset.top + rect.top;
+  return {left: left, top: top, right: right, bottom: bottom};
 }
