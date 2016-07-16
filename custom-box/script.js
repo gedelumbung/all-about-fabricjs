@@ -49,7 +49,7 @@ canvas.on('object:selected', function(e) {
 });
 
 canvas.on('selection:cleared', function(e) {
-  onSelectionCleared(canvas);
+  onSelectionCleared();
 });
 
 canvas.on('object:moving', function(e) {
@@ -60,6 +60,7 @@ function onObjectSelected(e, canvas){
   $('#font_type').off('change');
   $('#font_color').off('change');
   $('#text_align').off('change');
+  $('#delete_btn').off('click');
   $('#customBox').remove();
   showImageTools(e.target, canvas);
 }
@@ -71,12 +72,57 @@ function onObjectMoving(e, canvas){
   }, 500);
 }
 
-function onSelectionCleared(side){
+function onSelectionCleared(){
   $('#customBox').remove();
 }
 
-function removeLayers(index){
-  canvas.getObjects()[index].remove();
+function removeLayers(){
+  return function(){
+    canvas.getActiveObject().remove();
+    canvas.renderAll();
+  }
+}
+
+function changeFontWeight(e){
+  return function(){
+    $('#text_bold').val($(this).is(':checked'));
+    if($(this).is(":checked")) {
+        e.fontWeight = 'bold';
+        canvas.renderAll();
+    }
+    else{
+        e.fontWeight = 'normal';
+        canvas.renderAll();
+    }
+  }
+}
+
+function changeFontStyle(e){
+  return function(){
+    $('#text_italic').val($(this).is(':checked'));
+    if($(this).is(":checked")) {
+        e.fontStyle = 'italic';
+        canvas.renderAll();
+    }
+    else{
+        e.fontStyle = 'normal';
+        canvas.renderAll();
+    }
+  }
+}
+
+function changeTextDecoration(e){
+  return function(){
+    $('#text_underline').val($(this).is(':checked'));
+    if($(this).is(":checked")) {
+        e.textDecoration = 'underline';
+        canvas.renderAll();
+    }
+    else{
+        e.textDecoration = 'normal';
+        canvas.renderAll();
+    }
+  }
 }
 
 function showImageTools (e, side) {
@@ -87,9 +133,41 @@ function showImageTools (e, side) {
       $('#font_type').change(changeFontType(e));
       $('#font_color').change(changeFontColor(e));
       $('#text_align').change(changeTextAlign(e));
+      $('#delete_btn').click(removeLayers());
       $('#font_type').val(e.fontFamily);
       $('#font_color').val(e.fill);
       $('#text_align').val(e.textAlign);
+
+      $('#text_bold').prop('checked', function(){
+          if(e.fontWeight === 'bold'){
+              return true;
+          }
+          else{
+              return false;
+          }
+      });
+
+      $('#text_italic').prop('checked', function(){
+          if(e.fontStyle === 'italic'){
+              return true;
+          }
+          else{
+              return false;
+          }
+      });
+
+      $('#text_underline').prop('checked', function(){
+          if(e.textDecoration === 'underline'){
+              return true;
+          }
+          else{
+              return false;
+          }
+      });
+
+      $('#text_bold').change(changeFontWeight(e));
+      $('#text_italic').change(changeFontStyle(e));
+      $('#text_underline').change(changeTextDecoration(e));
     }
     moveImageTools(e, side);
   });
