@@ -1,4 +1,11 @@
 /* Styles go here */
+body {
+  padding-top: 50px;
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
 canvas{
   border: 1px solid #000;
 }
