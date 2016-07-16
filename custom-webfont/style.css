@@ -19,4 +19,10 @@ div.overlay > div {
   text-align:     center;
   vertical-align: middle;
 }
-
+body {
+  padding-top: 50px;
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
