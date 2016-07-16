@@ -1,10 +1,22 @@
+/**
+ * Initial Canvas
+ * @type {fabric}
+ */
 var canvas = new fabric.Canvas("canvas");
 canvas.backgroundColor = '#eee';
 canvas.renderAll();
+
+/**
+ * Change canvas background
+ */
 $('#bg_color').on('input', function() { 
 	canvas.backgroundColor = $('#bg_color').val();
 	canvas.renderAll();
 });
+
+/**
+ * Add new text object
+ */
 $('#btn_add_new').click(function(e) {
   e.preventDefault();
   if($('#new_text').val() !== '')
@@ -23,6 +35,41 @@ $('#btn_add_new').click(function(e) {
   }
 });
 
+/**
+ * FabricJs Event
+ * For more information about FabricJs event : https://github.com/kangax/fabric.js/wiki/Working-with-events
+ */
+
+/**
+ * on Object:selected event
+ */
+canvas.on('object:selected', function(e) {
+  onObjectSelected(e);
+});
+
+/**
+ * on Object:selection_cleared event
+ */
+canvas.on('selection:cleared', function(e) {
+  onSelectionCleared();
+});
+
+/**
+ * On Object:moving event
+ */
+canvas.on('object:moving', function(e) {
+  onObjectMoving(e);
+});
+
+/**
+ * FabricJs method event
+ */
+
+/**
+ * Change font type/font family
+ * @param  {[object]} e [canvas object]
+ * @return {[method]}   [render canvas]
+ */
 function changeFontType(e){
   return function(){
     e.fontFamily = $('#font_type').val();
@@ -30,6 +77,11 @@ function changeFontType(e){
   }
 }
 
+/**
+ * Change font color
+ * @param  {[object]} e [canvas object]
+ * @return {[method]}   [render canvas]
+ */
 function changeFontColor(e){
   return function(){
     e.fill = $('#font_color').val();
@@ -37,6 +89,11 @@ function changeFontColor(e){
   }
 }
 
+/**
+ * Change text align
+ * @param  {[object]} e [canvas object]
+ * @return {[method]}   [render canvas]
+ */
 function changeTextAlign(e){
   return function(){
     e.textAlign = $('#text_align').val();
@@ -44,38 +101,42 @@ function changeTextAlign(e){
   }
 }
 
-canvas.on('object:selected', function(e) {
-  onObjectSelected(e, canvas);
-});
-
-canvas.on('selection:cleared', function(e) {
-  onSelectionCleared();
-});
-
-canvas.on('object:moving', function(e) {
-  onObjectMoving(e, canvas);
-});
-
-function onObjectSelected(e, canvas){
+/**
+ * Method event when object selected
+ * @param  {[object]} e [canvas object]
+ */
+function onObjectSelected(e){
   $('#font_type').off('change');
   $('#font_color').off('change');
   $('#text_align').off('change');
   $('#delete_btn').off('click');
   $('#customBox').remove();
-  showImageTools(e.target, canvas);
+  showBox(e.target);
 }
 
-function onObjectMoving(e, canvas){
+/**
+ * Method event when object moving
+ * @param  {[object]} e [canvas object]
+ */
+function onObjectMoving(e){
   setTimeout(function() {
     $('#customBox').remove();
-    showImageTools(e.target, canvas);
+    showBox(e.target);
   }, 500);
 }
 
+/**
+ * Method event when object selection cleared
+ * @param  {[object]} e [canvas object]
+ */
 function onSelectionCleared(){
   $('#customBox').remove();
 }
 
+/**
+ * Method event when click on delete button
+ * @return {[method]}   [render canvas]
+ */
 function removeLayers(){
   return function(){
     canvas.getActiveObject().remove();
@@ -83,6 +144,11 @@ function removeLayers(){
   }
 }
 
+/**
+ * Method event when change font weight
+ * @param  {[object]} e [canvas object]
+ * @return {[method]}   [render canvas]
+ */
 function changeFontWeight(e){
   return function(){
     $('#text_bold').val($(this).is(':checked'));
@@ -97,6 +163,11 @@ function changeFontWeight(e){
   }
 }
 
+/**
+ * Method event when change font style
+ * @param  {[object]} e [canvas object]
+ * @return {[method]}   [render canvas]
+ */
 function changeFontStyle(e){
   return function(){
     $('#text_italic').val($(this).is(':checked'));
@@ -111,6 +182,11 @@ function changeFontStyle(e){
   }
 }
 
+/**
+ * Method event when change text decoration
+ * @param  {[object]} e [canvas object]
+ * @return {[method]}   [render canvas]
+ */
 function changeTextDecoration(e){
   return function(){
     $('#text_underline').val($(this).is(':checked'));
@@ -125,7 +201,11 @@ function changeTextDecoration(e){
   }
 }
 
-function showImageTools (e, side) {
+/**
+ * Show custom box
+ * @param  {[object]} e [canvas object]
+ */
+function showBox (e) {
   var url = 'box.htm';
   $.get(url, function(data) { 
     if (!$('#customBox').length) {
@@ -169,23 +249,32 @@ function showImageTools (e, side) {
       $('#text_italic').change(changeFontStyle(e));
       $('#text_underline').change(changeTextDecoration(e));
     }
-    moveImageTools(e, side);
+    moveBox(e);
   });
 }
 
-function moveImageTools (e, side) {
+/**
+ * Set size and position for custom box when object text draged
+ * @param  {[object]} e [canvas object]
+ */
+function moveBox (e) {
   var w = $('#customBox').width();
   var h = $('#customBox').height();
-  var coords = getObjPosition(e, side);
+  var coords = getObjPosition(e);
   var top = coords.bottom;
   var left = coords.left;
   $('#customBox').show();
   $('#customBox').css({top: top, left: left});
 }
 
-function getObjPosition (e, side) {
+/**
+ * Calculate and get object position based on canvas size
+ * @param  {[object]} e [canvas object]
+ * @return {[method]}   [render canvas]
+ */
+function getObjPosition (e) {
   var rect = e.getBoundingRect();
-  var offset = side.calcOffset();
+  var offset = canvas.calcOffset();
   var bottom = offset._offset.top + rect.top + rect.height;
   var right = offset._offset.left + rect.left + rect.width;
   var left = offset._offset.left + rect.left;
